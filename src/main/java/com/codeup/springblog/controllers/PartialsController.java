@@ -8,6 +8,6 @@ public class PartialsController {
 
     @GetMapping("partials")
     public String showPartials(){
-        return "views-lec/partials";
+        return "views-lec/partials-test";
     }
 }
