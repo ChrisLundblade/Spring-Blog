@@ -1,17 +1,12 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
-<head th:replace="partials/partials.html :: head ('Die Roll Guesser')">
+<html lang="en">
+<head th:replace="partials/partials.html :: head ('Show posts?')">
 
 </head>
 <body>
 	<header th:replace="partials/partials.html :: header"></header>
 	<nav th:replace="partials/partials.html :: navbar"></nav>
-	<p>
-		You guessed <span th:text="${guess}"></span><br>
-		The result of the roll was <span th:text="${rollResult}"></span><br>
-		<span th:text="${guessMessage}"></span>
-	</p>
-
+	<h1>Here are the ads, I guess</h1>
 	<footer th:replace="partials/partials.html :: footer"></footer>
 	<script th:replace="partials/partials.html :: bootstrap-js"></script>
 </body>
