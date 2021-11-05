@@ -1,14 +1,14 @@
 package com.codeup.springblog.controllers;
 
 import com.codeup.springblog.models.Post;
+import com.codeup.springblog.models.PostImage;
 import com.codeup.springblog.repositories.PostRepository;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -22,9 +22,10 @@ public class PostController {
     }
 
     @GetMapping("/posts")
-    @ResponseBody
-    public List<Post> index(){
-        return postRepository.findAll();
+    public String index(Model model){
+        List<Post> posts = postRepository.findAll();
+        model.addAttribute("posts", posts);
+        return "posts/index";
     }
 
 
@@ -42,10 +43,24 @@ public class PostController {
     }
 
     @GetMapping("/posts/create")
-    @ResponseBody
-    public String create(Post newPost){
-        postRepository.save(newPost);
-        return String.format("Post created with an ID of: %s", newPost.getId());
+    public String create(){
+        return "posts/create";
+    }
+
+    @PostMapping("/posts/create")
+    public String insert(@RequestParam String title, @RequestParam String body, @RequestParam List<String> urls){
+        List<PostImage> images = new ArrayList<>();
+        Post post = new Post(title, body);
+        for(String url : urls){
+            PostImage postImage= new PostImage(url);
+            postImage.setPost(post);
+            images.add(postImage);
+        }
+
+        post.setImages(images);
+
+        postRepository.save(post);
+        return "redirect:/posts";
     }
 
 //    @PostMapping("/posts/create")
@@ -60,18 +75,27 @@ public class PostController {
 //        return RedirectView;
 //    }
 
-    @PostMapping("/posts/delete/{id}")
+    @PostMapping("/posts/{id}/delete")
     @ResponseBody
     public String delete(@PathVariable long id){
         postRepository.deleteById(id);
-        return "The ad with the id of "+id+" was deleted.";
+        return "redirect:/posts";
     }
 
-    @PostMapping("posts/edit/{updatedPost}")
-    @ResponseBody
-    public Post edit(@PathVariable Post updatedPost){
-        postRepository.editByID(updatedPost.getId(), updatedPost.getTitle(), updatedPost.getBody());
-        return postRepository.getById(updatedPost.getId());
+    @GetMapping("/posts/{id}/edit")
+    public String returnEditView(@PathVariable long id, Model viewModel){
+        viewModel.addAttribute("post", postRepository.getById(id));
+        return "posts/edit";
+    }
+
+    @PostMapping("posts/{id}/edit")
+    public String edit(@PathVariable long id, @RequestParam String title, @RequestParam String body){
+        Post post = postRepository.getById(id);
+        post.setTitle(title);
+        post.setBody(body);
+        postRepository.save(post);
+
+        return "redirect:/posts";
     }
 
 
