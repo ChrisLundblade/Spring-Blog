@@ -8,18 +8,38 @@
 
 	<h1>Edit Post</h1>
 
-	<form th:method="POST">
+<!--	<form th:method="POST">-->
+<!--		<div>-->
+<!--			<label for="title">Title</label>-->
+<!--			<br>-->
+<!--			<input id="title" name="title" type="text" placeholder="Enter Blog Post Title" th:value="${post.title}">-->
+<!--		</div>-->
+<!--		<div>-->
+<!--			<label for="body">Body</label>-->
+<!--			<br>-->
+<!--			<textarea name="body" id="body" cols="30" rows="10" placeholder="Enter Blog Content" th:text="${post.body}"></textarea>-->
+<!--		</div>-->
+<!--		<button>Edit Post</button>-->
+<!--	</form>-->
+	<form th:action="@{/posts/${id}/create}" th:method="POST" th:object="${post}">
 		<div>
 			<label for="title">Title</label>
 			<br>
-			<input id="title" name="title" type="text" placeholder="Enter Blog Post Title" th:value="${post.title}">
+			<input id="title" th:field="*{title}" />
 		</div>
 		<div>
 			<label for="body">Body</label>
 			<br>
-			<textarea name="body" id="body" cols="30" rows="10" placeholder="Enter Blog Content" th:text="${post.body}"></textarea>
+			<textarea th:field="*{body}" id="body" placeholder="Enter Blog Content"></textarea>
 		</div>
-		<button>Edit Post</button>
+		<div>
+			<label for="image-1">Image 1</label>
+			<input id="image-1" name="urls" type="url" placeholder="Enter image url">
+			<br>
+			<label for="image-2">Image 2</label>
+			<input id="image-2" name="urls" type="url" placeholder="Enter image url">
+		</div>
+		<button>Create Post</button>
 	</form>
 
 </body>

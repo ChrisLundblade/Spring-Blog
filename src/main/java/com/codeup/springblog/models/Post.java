@@ -27,6 +27,10 @@ public class Post {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "post")
     private List<PostImage> images;
 
+    @ManyToOne
+    @JoinColumn (name = "user_id")
+    private User user;
+
     public String getBody() {
         return body;
     }
@@ -37,6 +41,10 @@ public class Post {
 
     public String getTitle() {
         return title;
+    }
+
+    public User getUser() {
+        return user;
     }
 
     public List<PostImage> getImages() {
@@ -57,5 +65,9 @@ public class Post {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }
