@@ -93,8 +93,11 @@ public class PostController {
     }
 
     @PostMapping("posts/{id}/edit")
-    public String edit(@PathVariable long id, @ModelAttribute("post") Post post, @RequestParam List<String> urls){
-        post.setId(id);
+    public String edit(@PathVariable long id, @ModelAttribute("post") Post post, @RequestParam  List<String> urls){
+        Post originalPost = postRepository.getById(id);
+        originalPost.setBody(post.getBody());
+        originalPost.setTitle(post.getTitle());
+        //post.setId(id);
         List<PostImage> images = new ArrayList<>();
         for(String url : urls){
             PostImage postImage= new PostImage(url);
@@ -105,8 +108,8 @@ public class PostController {
         for(PostImage image : post.getImages()){
             System.out.println(image.getUrl());
         }
-        post.setUser(userRepository.getById(1L));
-        postRepository.save(post);
+        //post.setUser(userRepository.getById(1L));
+        postRepository.save(originalPost);
         return "redirect:/posts";
     }
 

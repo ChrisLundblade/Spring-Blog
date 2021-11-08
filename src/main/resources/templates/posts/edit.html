@@ -21,7 +21,7 @@
 <!--		</div>-->
 <!--		<button>Edit Post</button>-->
 <!--	</form>-->
-	<form th:method="POST" th:object="${post}">
+	<form th:action="@{/posts/{id}/edit(id=${id})}" th:method="POST" th:object="${post}">
 		<div>
 			<label for="title">Title</label>
 			<br>
