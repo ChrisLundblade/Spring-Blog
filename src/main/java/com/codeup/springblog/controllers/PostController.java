@@ -4,6 +4,7 @@ import com.codeup.springblog.models.Post;
 import com.codeup.springblog.models.PostImage;
 import com.codeup.springblog.repositories.PostRepository;
 import com.codeup.springblog.repositories.UserRepository;
+import com.codeup.springblog.services.EmailService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -17,12 +18,13 @@ public class PostController {
 
     //injects a dependency
     private final PostRepository postRepository; //aka postsDao
-
+    private final EmailService emailService;
     public final UserRepository userRepository;
 
-    public PostController(PostRepository postRepository, UserRepository userRepository){
+    public PostController(PostRepository postRepository, UserRepository userRepository, EmailService emailService){
         this.postRepository = postRepository;
         this.userRepository = userRepository;
+        this.emailService=emailService;
     }
 
     @GetMapping("/posts")
@@ -65,6 +67,7 @@ public class PostController {
         post.setUser(userRepository.getById(1L)); //just using the first user for now
 
         postRepository.save(post);
+        emailService.prepareAndSend(post, "You made " + post.getTitle() + ".", post.getBody());
         return "redirect:/posts";
     }
 

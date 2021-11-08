@@ -1,8 +1,12 @@
 package com.codeup.springblog.controllers;
 
 import com.codeup.springblog.models.Ad;
+import com.codeup.springblog.models.User;
 import com.codeup.springblog.repositories.AdRepository;
+import com.codeup.springblog.repositories.UserRepository;
+import com.codeup.springblog.services.EmailService;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,9 +15,13 @@ import java.util.List;
 public class AdController {
 
     private final AdRepository adRepository;
+    private final EmailService emailService;
+    private final UserRepository userRepository;
 
-    public AdController(AdRepository adRepository){
+    public AdController(AdRepository adRepository, EmailService emailService, UserRepository userRepository){
         this.adRepository = adRepository;
+        this.emailService= emailService;
+        this.userRepository = userRepository;
     }
 
     @GetMapping("/ads/{id}")
@@ -23,11 +31,26 @@ public class AdController {
     }
 
     @GetMapping("/ads")
-    @ResponseBody
-    public List<Ad> showAds(){
+    public String showAds(Model model){
 
 //        System.out.println(adRepository.findAll());
-        return adRepository.findAll();
+        model.addAttribute("ads", adRepository.findAll());
+        return "ads/index";
+    }
+
+    @GetMapping("/ads/create")
+    public String showCreateAdsForm(Model model){
+        model.addAttribute("ad", new Ad());
+        return "ads/create";
+    }
+
+    @PostMapping("/ads/create")
+    public String createAdWithForm(@ModelAttribute Ad ad){
+        User user = userRepository.getById(1L);
+        ad.setOwner(user);
+        adRepository.save(ad);
+        emailService.prepareAndSend(ad, "You made " + ad.getTitle() + ".", ad.getDescription());
+        return "redirect:/ads";
     }
 
     @GetMapping("/ads/{title}")

@@ -1,47 +1,52 @@
 package com.codeup.springblog.controllers;
 
 import com.codeup.springblog.models.Coffee;
+import com.codeup.springblog.repositories.CoffeeRepository;
+import com.codeup.springblog.services.EmailService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Controller
 public class CoffeeController {
+    private final CoffeeRepository coffeeRepository;
+    private final EmailService emailService;
+
+    public CoffeeController(CoffeeRepository coffeeRepository, EmailService emailService){
+        this.emailService = emailService;
+        this.coffeeRepository = coffeeRepository;
+    }
 
     @GetMapping("/coffee")
     public String coffeeInfo(){
-        return "views-lec/coffee";
+        return "coffees/coffee";
+    }
+
+    @PostMapping("/coffee")
+    public String newsletterSignup(@RequestParam(name="email") String email, Model model){
+        model.addAttribute("email", email);
+        emailService.prepareAndSend(email, "You have signed up for coffee emails! Thank you!");
+        return "coffees/coffee";
     }
 
     @GetMapping("/coffee/{roast}")
     public String roastSelection(@PathVariable String roast, Model model){
-//        model.addAttribute("roast", roast);
-//        boolean choseDark = false;
-//        if(roast.equals("dark")){
-//            choseDark=true;
-//        }
-//        model.addAttribute("choseDark", choseDark);
-        Coffee selection = new Coffee(roast, "Cool Beans");
-        Coffee selection2 = new Coffee(roast, "Jolting Joe");
-        selection.setRoast(roast);
-        if(roast.equals("dark")){
-            selection.setOrigin("Colombia");
-            selection2.setOrigin("Brazil");
-        }else if(roast.equals("medium")){
-            selection.setOrigin("New Guinea");
-            selection2.setOrigin("Sumatra");
-        } else {
-            selection.setOrigin("Kenya");
-            selection2.setOrigin("Ethiopia");
-        }
-        List<Coffee> selections = new ArrayList<Coffee>();
-        selections.add(selection);
-        selections.add(selection2);
-        model.addAttribute("selections", selections);
-        return "views-lec/coffee";
+        model.addAttribute("selections", coffeeRepository.findByRoast(roast));
+        return "coffees/coffee";
+    }
+
+    @GetMapping("/coffee/create")
+    public String showCreateCoffeeForm(Model model){
+        model.addAttribute("coffee", new Coffee());
+        return "/coffees/create";
+    }
+
+    @PostMapping("/coffee/create")
+    public String createCoffee(@ModelAttribute Coffee coffee){
+        coffeeRepository.save(coffee);
+        return "redirect:/coffee";
     }
 }
