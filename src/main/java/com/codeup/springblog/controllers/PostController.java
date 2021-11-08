@@ -81,7 +81,6 @@ public class PostController {
 //    }
 
     @PostMapping("/posts/{id}/delete")
-    @ResponseBody
     public String delete(@PathVariable long id){
         postRepository.deleteById(id);
         return "redirect:/posts";
@@ -94,12 +93,20 @@ public class PostController {
     }
 
     @PostMapping("posts/{id}/edit")
-    public String edit(@PathVariable long id, @RequestParam String title, @RequestParam String body){
-        Post post = postRepository.getById(id);
-        post.setTitle(title);
-        post.setBody(body);
+    public String edit(@PathVariable long id, @ModelAttribute("post") Post post, @RequestParam List<String> urls){
+        post.setId(id);
+        List<PostImage> images = new ArrayList<>();
+        for(String url : urls){
+            PostImage postImage= new PostImage(url);
+            postImage.setPost(post);
+            images.add(postImage);
+        }
+        post.setImages(images);
+        for(PostImage image : post.getImages()){
+            System.out.println(image.getUrl());
+        }
+        post.setUser(userRepository.getById(1L));
         postRepository.save(post);
-
         return "redirect:/posts";
     }
 
