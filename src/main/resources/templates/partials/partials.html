@@ -42,6 +42,14 @@
 					<input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
 					<button class="btn btn-outline-success" type="submit">Search</button>
 				</form>
+				<ul class="navbar-nav me-auto">
+					<!-- More links here... -->
+					<li class="nav-item">
+						<form th:action="@{/logout}" th:method="post">
+							<button class="nav-link btn-link btn">Logout</button>
+						</form>
+					</li>
+				</ul>
 			</div>
 		</div>
 	</nav>
