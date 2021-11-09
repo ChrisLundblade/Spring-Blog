@@ -2,9 +2,11 @@ package com.codeup.springblog.controllers;
 
 import com.codeup.springblog.models.Post;
 import com.codeup.springblog.models.PostImage;
+import com.codeup.springblog.models.User;
 import com.codeup.springblog.repositories.PostRepository;
 import com.codeup.springblog.repositories.UserRepository;
 import com.codeup.springblog.services.EmailService;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -64,10 +66,13 @@ public class PostController {
         }
 
         post.setImages(images);
-        post.setUser(userRepository.getById(1L)); //just using the first user for now
+//        getting User that's logged in and assigning it
+        post.setUser((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
 
         postRepository.save(post);
         emailService.prepareAndSend(post, "You made " + post.getTitle() + ".", post.getBody());
+
+
         return "redirect:/posts";
     }
 
@@ -91,8 +96,12 @@ public class PostController {
 
     @GetMapping("/posts/{id}/edit")
     public String returnEditView(@PathVariable long id, Model viewModel){
-        viewModel.addAttribute("post", postRepository.getById(id));
-        return "posts/edit";
+//        Left side logged in user, right side id of user affiliated with post
+        if(((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId() == (postRepository.getById(id).getUser().getId())) {
+            viewModel.addAttribute("post", postRepository.getById(id));
+            return "posts/edit";
+        } else
+            return "/users/login";
     }
 
     @PostMapping("posts/{id}/edit")
