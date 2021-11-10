@@ -67,8 +67,9 @@ public class PostController {
 
         post.setImages(images);
 //        getting User that's logged in and assigning it
-        post.setUser((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-
+        User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User author = userRepository.getById(principal.getId());
+        post.setUser(author);
         postRepository.save(post);
         emailService.prepareAndSend(post, "You made " + post.getTitle() + ".", post.getBody());
 
