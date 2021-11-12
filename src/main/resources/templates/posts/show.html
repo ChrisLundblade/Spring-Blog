@@ -12,10 +12,14 @@
 		<h3 th:text="${post.title}"></h3>
 		<p th:text="${post.body}"></p>
 		<p th:text="${post.user.email}"></p>
-		<a th:href="@{'/posts/' + ${post.id} + '/edit'}">Edit Post</a>
-		<form th:action="@{'/posts/' + ${post.id} + '/delete'}" th:method="POST">
-			<button>Delete Post</button>
-		</form>
+		<div sec:authorize="isAuthenticated()">
+			<div th:if="${#authentication.principal.id == post.user.id}">
+				<a class="btn btn-sm btn-warning" th:href="@{'/posts/' + ${post.id} + '/edit'}">Edit Post</a>
+				<form class="d-inline" th:action="@{'/posts/' + ${post.id} + '/delete'}" th:method="POST">
+					<button class="btn btn-sm btn-danger">Delete Post</button>
+				</form>
+			</div>
+		</div>
 	</div>
 
 	<footer th:replace="partials/partials.html :: footer"></footer>
