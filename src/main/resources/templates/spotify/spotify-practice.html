@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<head th:replace="partials/partials.html :: head ('Discogs test')">
+
+</head>
+<body>
+<script src="keys.js"></script>
+<header th:replace="partials/partials.html :: header"></header>
+<nav th:replace="partials/partials.html :: navbar"></nav>
+
+
+	<textarea id="results"></textarea><br>
+	<input id="search-bar" type="text">
+	<button id="search-button">Search</button>
+	<footer th:replace="partials/partials.html :: footer"></footer>
+	<script th:replace="partials/partials.html :: bootstrap-js"></script>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+
+	<script>
+		'use strict';
+
+		const searchBar = $("#search-bar");
+		const searchButton = $("#search-button");
+		const searchResults = $("#results");
+
+		//Following guide at https://www.youtube.com/watch?v=1vR3m0HupGI&ab_channel=MakerAtPlayCoding
+		var redirect_uri = "http://localhost:8080/spotify";
+		const AUTHORIZE = "https://accounts.spotify.com/authorize";
+
+		function onPageLoad(){
+		    if(window.location.search.length > 0){
+		        handleRedirect();
+			}
+		}
+        function handleRedirect(){
+            let code = getCode();
+            fetchAccessToken( code );
+            window.history.pushState("", "", redirect_uri); // remove param from url
+        }
+
+        function fetchAccessToken( code ){
+            let body = "grant_type=authorization_code";
+            body += "&code=" + code;
+            body += "&redirect_uri=" + encodeURI(redirect_uri);
+            body += "&client_id=" + client_id;
+            body += "&client_secret=" + client_secret;
+            callAuthorizationApi(body);
+        }
+        function getCode(){
+            let code = null;
+            const queryString = window.location.search;
+            if ( queryString.length > 0 ){
+                const urlParams = new URLSearchParams(queryString);
+                code = urlParams.get('code')
+            }
+            return code;
+        }
+
+		function requestAuthorization(){
+		    let client_id = ""; //will remove from github so the API key police don't come for me
+		    let client_secret = "";
+		    localStorage.setItem("client_id", client_id);
+		    localStorage.setItem("client_secret", client_secret);
+
+		    let url = AUTHORIZE;
+		    url += "?client_id=" + client_id;
+		    url += "&response_type=code";
+		    url += "&redirect_uri=" + encodeURI(redirect_uri);
+		    url += "&shot_dialogue=true";
+		    url += "&scope=user-read-private user-read-email user-modify-playback-state user-read-playback-position user-library-read streaming user-read-playback-state user-read-recently-played playlist-read-private";
+		    window.location.href = url;
+		}
+
+
+
+		searchButton.click(function (){
+			console.log(searchBar.innerText);
+			var search = new XMLHttpRequest()
+			$.get("/v1/search?type=album&include_external=audio HTTP/1.1"), {
+				Content_Type: application/json,
+				Authorization: ,
+				Host: api.spotify.com
+			}
+			$.get("https://api.discogs.com/database/search?release_title=nevermind&artist=nirvana&per_page=3&page=1", {
+				Authorization: {discogs_key: DISCOGS_CONSUMER_KEY, secret:DISCOGS_CONSUMER_SECRET}
+			}).done(function(data) {
+				console.log(data);
+				searchResults.innerText = data;
+			});
+			//"https://api.discogs.com/database/search?q="+ searchBar.val() + "&key="+DISCOGS_CONSUMER_KEY+"&secret="+DISCOGS_CONSUMER_SECRET
+			//GET https://api.discogs.com/database/search?release_title=nevermind&artist=nirvana&per_page=3&page=1
+		})
+
+		// const editMovie = async (id, title, rating) =>{
+		//     let options = {
+		//         method: "PUT",
+		//         headers: {
+		//             'Content-Type' : 'application/json',
+		//         },
+		//         body: JSON.stringify({
+		//             title: title,
+		//             rating: rating,
+		//             id: id
+		//         })
+		//     };
+		//     fetch(`${moviesURL}/${id}`, options)
+		//         //.then(data => console.log(data))
+		//         .catch(error => console.log(error));
+		//
+		//     await new Promise((resolve) => setTimeout(resolve, 2500));
+		//     fetchData();
+		// }
+		//
+		// fetch(moviesURL)
+		//     .then(res => res.json())
+		//     .then(data => {
+		//         return renderHTML(data);
+		//     })
+	</script>
+</body>
+</html>
